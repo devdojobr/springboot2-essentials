@@ -1,6 +1,7 @@
 package academy.devdojo.springboot2.repository;
 
 import academy.devdojo.springboot2.domain.Anime;
+import academy.devdojo.springboot2.util.AnimeCreator;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ class AnimeRepositoryTest {
     @Test
     @DisplayName("Save persists anime when Successful")
     void save_PersistAnime_WhenSuccessful() {
-        Anime animeToBeSave = createAnime();
+        Anime animeToBeSave = AnimeCreator.createAnimeToBeSaved();
 
         Anime animeSaved = this.animeRepository.save(animeToBeSave);
 
@@ -36,7 +37,7 @@ class AnimeRepositoryTest {
     @Test
     @DisplayName("Save update anime when Successful")
     void save_UpdateAnime_WhenSuccessful() {
-        Anime animeToBeSave = createAnime();
+        Anime animeToBeSave = AnimeCreator.createAnimeToBeSaved();
 
         Anime animeSaved = this.animeRepository.save(animeToBeSave);
 
@@ -54,7 +55,7 @@ class AnimeRepositoryTest {
     @Test
     @DisplayName("Delete removes anime when Successful")
     void delete_RemovesAnime_WhenSuccessful() {
-        Anime animeToBeSave = createAnime();
+        Anime animeToBeSave = AnimeCreator.createAnimeToBeSaved();
 
         Anime animeSaved = this.animeRepository.save(animeToBeSave);
 
@@ -68,7 +69,7 @@ class AnimeRepositoryTest {
     @Test
     @DisplayName("Find By name return list of anime when Successful")
     void findByName_ReturnListOfAnime_WhenSuccessful() {
-        Anime animeToBeSave = createAnime();
+        Anime animeToBeSave = AnimeCreator.createAnimeToBeSaved();
 
         Anime animeSaved = this.animeRepository.save(animeToBeSave);
 
@@ -103,11 +104,5 @@ class AnimeRepositoryTest {
 
     }
 
-
-    private Anime createAnime() {
-        return Anime.builder()
-                .name("Hajime no Ippo ")
-                .build();
-    }
 
 }
