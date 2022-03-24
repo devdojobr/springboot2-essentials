@@ -13,7 +13,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Log4j2
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
+    /**
+     * --- Filtros do Spring ---
+     *  BasicAuthenticationFilter
+     *  UsernamePasswordGeneratingFilter
+     *  DefaultLoginPageGeneratingFilter
+     *  DefaultLogoutPageGeneratingFilter
+     *  FilterSecurityInterceptor
+     *  Authentication -> Authorization
+     * @param http
+     * @throws Exception
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -21,6 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .anyRequest()
                 .authenticated()
+                .and()
+                .formLogin()
                 .and()
                 .httpBasic();
     }
