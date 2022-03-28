@@ -1,7 +1,9 @@
 package academy.devdojo.springboot2.integration;
 
 import academy.devdojo.springboot2.domain.Anime;
+import academy.devdojo.springboot2.domain.DevDojoUser;
 import academy.devdojo.springboot2.repository.AnimeRepository;
+import academy.devdojo.springboot2.repository.DevDojoUserRepository;
 import academy.devdojo.springboot2.requests.AnimePostRequestBody;
 import academy.devdojo.springboot2.util.AnimeCreator;
 import academy.devdojo.springboot2.util.AnimePostRequestBodyCreator;
@@ -10,15 +12,24 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.CustomAutowireConfigurer;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -29,16 +40,37 @@ import java.util.List;
 //Antes de cada metodo ele da um drop no banco de dados e recria para cada metodo
 class AnimeControllerIT {
     @Autowired
+    @Qualifier(value = "testRestTemplateRoleUser")
     private TestRestTemplate testRestTemplate;
-    //    @LocalServerPort
-    //    private int port;  //para pegar uma porta expecifica passada
     @Autowired
     private AnimeRepository animeRepository;
+    @Autowired
+    private DevDojoUserRepository devDojoUserRepository;
+
+    //bean que será utilizado na hora do @Autowired
+    @TestConfiguration
+    @Lazy
+    static class Config {
+        @Bean(name = "testRestTemplateRoleUser")
+        public TestRestTemplate testRestTemplateRoleUserCreator(@Value("${local.server.port}") int port){
+            RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
+                    .rootUri("http://localhost:"+ port)
+                    .basicAuthentication("devdojo", "academy");
+            return new TestRestTemplate(restTemplateBuilder);
+        }
+    }
 
     @Test
     @DisplayName("List returns list of anime inside page object when successful")
     void list_ReturnsListOfAnimesInsidePageObject_WhenSuccessful() {
         Anime savedAnime = animeRepository.save(AnimeCreator.createAnimeToBeSaved());
+        DevDojoUser user = DevDojoUser.builder()
+                .name("DevDojo Academy")
+                .password("{bcrypt}$2a$10$hSTIR1LEGbkA6US1B0IJVeoTsHrFKzPwXSeE40SvIFckopmMHoUTm")
+                .username("devdojo")
+                .authorities("ROLE_USER")
+                .build();
+        devDojoUserRepository.save(user);
 
         String expectedName = savedAnime.getName();
 
